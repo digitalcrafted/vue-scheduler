@@ -1,6 +1,6 @@
 {
   "name": "@digitalcrafted/vue-scheduler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Vue 3 scheduler component with day/week/month/year views for displaying calendar events",
   "type": "module",
   "author": "Francis Onwumere <https://github.com/digitalcrafted>",
