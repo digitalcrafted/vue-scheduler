@@ -31,7 +31,7 @@
     </div>
 
     <!-- Right: View mode toggle -->
-    <div class="flex items-center gap-2">
+    <div v-if="!hideViewModeSelector" class="flex items-center gap-2">
       <label
         v-for="mode in viewModes"
         :key="mode.value"
@@ -57,10 +57,12 @@ interface Props {
   periodLabel: string;
   currentViewMode: ViewMode;
   todayLabel?: string;
+  hideViewModeSelector?: boolean;
 }
 
 withDefaults(defineProps<Props>(), {
   todayLabel: "today",
+  hideViewModeSelector: false,
 });
 
 defineEmits<{

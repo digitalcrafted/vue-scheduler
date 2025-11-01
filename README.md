@@ -66,6 +66,32 @@ const loadEvents = ({ dateRange, setEvents }) => {
 </script>
 ```
 
+### Hiding View Mode Selector
+
+```vue
+<template>
+  <Scheduler
+    :events="events"
+    view-mode="month"
+    :hide-view-mode-selector="true"
+  />
+</template>
+
+<script setup>
+import { Scheduler } from "@digitalcrafted/vue-scheduler";
+import "@digitalcrafted/vue-scheduler/dist/style.css";
+
+const events = [
+  {
+    label: "Meeting",
+    start: "2024-10-08 10:00",
+    end: "2024-10-08 11:00",
+    bgColor: "#3498db",
+  },
+];
+</script>
+```
+
 ## Props
 
 ### `events`
@@ -122,6 +148,12 @@ function loadEvents({
 Available translation keys:
 
 - `header.today`: Label for "Today" button
+
+### `hideViewModeSelector`
+
+- **Type**: `boolean`
+- **Default**: `false`
+- **Description**: Hides the view mode selector (day/week/month/year toggle) from the header when set to `true`
 
 ## Event Format
 

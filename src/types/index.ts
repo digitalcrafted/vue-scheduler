@@ -22,6 +22,7 @@ export interface SchedulerProps {
   viewMode?: "day" | "week" | "month" | "year";
   dateLocale?: string;
   translations?: Record<string, string>;
+  hideViewModeSelector?: boolean;
 }
 
 export interface ProcessedEvent extends SchedulerEvent {

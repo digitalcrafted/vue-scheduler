@@ -4,6 +4,7 @@
       :period-label="periodLabel"
       :current-view-mode="viewMode"
       :today-label="todayLabel"
+      :hide-view-mode-selector="props.hideViewModeSelector"
       @previous="goToPrevious"
       @today="goToToday"
       @next="goToNext"
@@ -57,6 +58,7 @@ const props = withDefaults(defineProps<SchedulerProps>(), {
   viewMode: "week",
   dateLocale: undefined,
   translations: () => ({}),
+  hideViewModeSelector: false,
 });
 
 const {
