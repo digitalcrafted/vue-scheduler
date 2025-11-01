@@ -1,0 +1,46 @@
+{
+  "name": "@digitalcrafted/vue-scheduler",
+  "version": "0.1.0",
+  "description": "A Vue 3 scheduler component with day/week/month/year views for displaying calendar events",
+  "type": "module",
+  "author": "Francis Onwumere <https://github.com/digitalcrafted>",
+  "license": "MIT",
+  "keywords": [
+    "vue",
+    "vue3",
+    "scheduler",
+    "calendar",
+    "agenda",
+    "planner"
+  ],
+  "main": "dist/vue-scheduler.umd.js",
+  "module": "dist/vue-scheduler.es.js",
+  "types": "dist/index.d.ts",
+  "style": "dist/vue-scheduler.css",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "type-check": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "vue": "^3.4.21",
+    "dayjs": "^1.11.13"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11",
+    "vite-plugin-dts": "^3.9.1",
+    "vue-tsc": "^2.0.6",
+    "tailwindcss": "^3.4.7",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38"
+  }
+}
