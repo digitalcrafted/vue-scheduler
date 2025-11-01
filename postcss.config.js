@@ -1,6 +1,6 @@
 export default {
   plugins: {
-    tailwindcss: {},
+    // No Tailwind - library relies on consuming app's Tailwind for utilities
     autoprefixer: {},
   },
 };
