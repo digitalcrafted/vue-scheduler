@@ -135,21 +135,43 @@ const getDayEventInfo = (
     
     // Check if this is a multi-day event
     if (isMultiDayEvent(event)) {
-      // Check if this day is the start of the event in the visible month
+      // For multi-day events, render a segment on each row they appear in
+      const rowStart = Math.floor(dayIndex / 7) * 7;
+      const rowEnd = rowStart + 7;
+      
+      // Check if event is active on this day
       const eventStartDate = new Date(event.startDate);
       eventStartDate.setHours(0, 0, 0, 0);
+      const eventEndDate = new Date(event.endDate);
+      eventEndDate.setHours(23, 59, 59, 999);
       const dayDate = new Date(day);
       dayDate.setHours(0, 0, 0, 0);
       
-      // Only render if this is the start day of the event (or the event starts before visible month)
-      const isEventStart = isSameDay(event.startDate, day) || 
-        (eventStartDate < monthDays.value[0] && dayIndex === 0);
+      const eventStartsBeforeOrOnDay = eventStartDate <= dayDate;
+      const eventEndsAfterOrOnDay = eventEndDate >= dayDate;
+      const eventIsActive = eventStartsBeforeOrOnDay && eventEndsAfterOrOnDay;
       
-      if (isEventStart) {
-        // Calculate span across days
-        const spanInfo = calculateEventSpan(event, dayIndex);
+      // Determine if this is the start day of a row segment for this event
+      // This is either:
+      // 1. The row start day, if event started before this row
+      // 2. The actual event start day, if it starts within this row
+      let isRowSegmentStart = false;
+      if (eventIsActive) {
+        if (eventStartDate < new Date(monthDays.value[rowStart])) {
+          // Event started before this row - render from row start
+          isRowSegmentStart = dayIndex === rowStart;
+        } else {
+          // Event starts within this row - render from actual start day
+          isRowSegmentStart = isSameDay(event.startDate, day);
+        }
+      }
+      
+      // Render a segment starting from the appropriate day
+      if (isRowSegmentStart) {
+        // Calculate span for this row (up to end of row or end of event)
+        const spanInfo = calculateEventSpanForRow(event, dayIndex);
         
-        if (spanInfo.span > 0 && spanInfo.span <= 7) {
+        if (spanInfo.span > 0) {
           // Calculate width to span across multiple cells
           // Since we're inside a cell, 100% = cell width
           // To span N cells, we need width = 100% * N
@@ -164,7 +186,7 @@ const getDayEventInfo = (
           
           eventInfos.push({
             event,
-            key: eventKey,
+            key: `${eventKey}-row-${Math.floor(dayIndex / 7)}`,
             spanStyle: {
               width: widthCalc,
               marginRight: spanInfo.span > 1 ? `-${totalBorders}px` : '0',
@@ -189,22 +211,29 @@ const getDayEventInfo = (
   return eventInfos.slice(0, 3); // Limit to 3 events per day
 };
 
-// Calculate how many cells an event should span
-const calculateEventSpan = (
+// Calculate how many cells an event should span for a specific row
+const calculateEventSpanForRow = (
   event: ProcessedEvent,
-  startDayIndex: number
+  rowStartIndex: number
 ): { span: number; startIndex: number } => {
   const eventStart = new Date(event.startDate);
   eventStart.setHours(0, 0, 0, 0);
   const eventEnd = new Date(event.endDate);
   eventEnd.setHours(23, 59, 59, 999);
   
-  // Find the actual start index in monthDays
-  let actualStartIndex = startDayIndex;
-  if (eventStart < monthDays.value[0]) {
-    actualStartIndex = 0;
-  } else {
-    for (let i = 0; i < monthDays.value.length; i++) {
+  const rowStart = Math.floor(rowStartIndex / 7) * 7;
+  const rowEnd = rowStart + 7;
+  
+  // Determine the actual start index for this row
+  // If event starts before this row, start from row start
+  // If event starts within this row, start from event start
+  let actualStartIndex = rowStart;
+  const rowStartDate = new Date(monthDays.value[rowStart]);
+  rowStartDate.setHours(0, 0, 0, 0);
+  
+  if (eventStart >= rowStartDate) {
+    // Event starts within this row, find the exact day
+    for (let i = rowStart; i < rowEnd && i < monthDays.value.length; i++) {
       if (isSameDay(monthDays.value[i], eventStart)) {
         actualStartIndex = i;
         break;
@@ -212,26 +241,25 @@ const calculateEventSpan = (
     }
   }
   
-  // Calculate how many days the event spans within the visible month
+  // Calculate span from actualStartIndex to end of row or end of event
   let span = 1;
-  for (let i = actualStartIndex + 1; i < monthDays.value.length; i++) {
+  for (let i = actualStartIndex + 1; i < rowEnd && i < monthDays.value.length; i++) {
     const currentDay = monthDays.value[i];
     const dayStart = new Date(currentDay);
     dayStart.setHours(0, 0, 0, 0);
     const dayEnd = new Date(currentDay);
     dayEnd.setHours(23, 59, 59, 999);
     
-    // Check if event overlaps with this day
+    // Check if event still overlaps with this day
     if (eventStart <= dayEnd && eventEnd >= dayStart) {
       span++;
     } else {
+      // Event ends before this day, stop spanning
       break;
     }
   }
   
-  // Don't span beyond the current row (7 columns)
-  const rowStart = Math.floor(actualStartIndex / 7) * 7;
-  const rowEnd = rowStart + 7;
+  // Ensure we don't exceed the row boundary
   const maxSpan = rowEnd - actualStartIndex;
   
   return {
